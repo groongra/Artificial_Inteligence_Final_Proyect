@@ -1,0 +1,48 @@
+rule BaseCase {
+  // if n == 1 or n == 0, then the value is n.
+  declarations
+    inferencia.examples.Fibonacci f;
+  preconditions
+    f.getN() <= 1;
+    f.getValue() == 0-1;
+  actions
+    f.setValue(f.getN());
+    modified(f);   // Yes, I modified f
+}
+
+rule GoDown {
+  // if n >= 2, create two sons for the object
+  declarations
+    inferencia.examples.Fibonacci f;
+  preconditions
+    f.getValue() == 0-1;
+    f.getN() >= 2;
+    f.getSon1() == null;
+  actions
+    inferencia.examples.Fibonacci f1 = new inferencia.examples.Fibonacci(f.getN() - 1);
+    inferencia.examples.Fibonacci f2 = new inferencia.examples.Fibonacci(f.getN() - 2);
+    f.setSon1(f1);
+    f.setSon2(f2);
+    assert(f1);    // Let's tell our knowledge base
+    assert(f2);    //   that these two sons exist.
+    modified(f);
+}
+
+rule GoUp {
+  // if both subproblems are solved, so let's solve this one
+  declarations
+    inferencia.examples.Fibonacci f, f1, f2;
+  preconditions
+    f1 == f.getSon1();
+    f2 == f.getSon2();
+    f.getValue() == 0-1;
+    f.getN() >= 2;
+    f1 != null;
+    f1.getValue() != 0-1;
+    f2.getValue() != 0-1;
+  actions
+    f.setValue(f1.getValue() + f2.getValue());
+    retract(f1);  // I don't need
+    retract(f2);  //   them anymore...
+    modified(f);
+}

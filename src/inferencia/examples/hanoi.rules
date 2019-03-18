@@ -1,0 +1,58 @@
+rule createsFirstSubProblem {  // Passing (n-1) discs to the intermediary pin
+  declarations
+    inferencia.examples.Hanoi p;
+  preconditions
+    p.getDiscs() > 1;
+    !p.getOk();
+    p.getSub1() == null;
+  actions
+    inferencia.examples.Hanoi ps1;
+    ps1 = new inferencia.examples.Hanoi(p.getDiscs() - 1, p.getSource(), p.getIntermediate());
+    p.setSub1(ps1);
+    assert (ps1);
+    modified(p);
+}
+
+rule createsSecondSubproblem {  // First one is ok, doing the second.
+  declarations
+    inferencia.examples.Hanoi p, ps1;
+  preconditions
+    p.getDiscs() > 1;
+    !p.getOk();
+    ps1 == p.getSub1();
+    ps1.getOk();
+    p.getSub2() == null;
+  actions
+    p.addMove(p.getSource(), p.getDestination());
+    inferencia.examples.Hanoi ps2;
+    ps2 = new inferencia.examples.Hanoi(p.getDiscs() - 1, p.getIntermediate(), p.getDestination());
+    p.setSub2(ps2);
+    assert (ps2);
+    modified(p);
+}
+
+rule bothSubproblemsOk { // If both subproblems are ok, then the problem is ok.
+  declarations
+    inferencia.examples.Hanoi p, ps1, ps2;
+  preconditions
+    ps1 == p.getSub1();
+    ps2 == p.getSub2();
+    !p.getOk();
+    ps1.getOk();
+    ps2.getOk();
+  actions
+    p.setOk(true);
+    modified(p);
+}
+
+rule oneDisc {  // Base case
+  declarations
+    inferencia.examples.Hanoi p;
+  preconditions
+    p.getDiscs() == 1;
+    !p.getOk();
+  actions
+    p.addMove(p.getSource(), p.getDestination());
+    p.setOk(true);
+    modified(p);
+}

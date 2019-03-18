@@ -1,0 +1,119 @@
+/**
+* Modificar el fichero para incluir las reglas que se consideren necesarias
+*/
+// **RECUERDA** PRIORIDAD EN FUNCIÓN DEL ORDEN DE LAS REGLAS (LA SUPERIOR LA MÁS PRIORITARIA)
+
+rule robot_charge_battery {  
+  declarations
+  	inferencia.practica.Robot R;
+	inferencia.practica.Book_shelf BS;
+  preconditions
+  	BS.getArea().equals("PIC");
+	R.getPosition().equals("PIC");
+	R.getBattery()<10;
+  actions
+  	R.setBattery(10);
+  	R.print();
+  	modified(R);
+}
+
+rule robot_loads_book_PIC { 
+  declarations
+    inferencia.practica.Robot R;    
+    inferencia.practica.Book B;
+  preconditions
+    R.getPosition().equals("PIC");
+    B.getPosition().equals(R.getPosition()); 
+  	R.getWeight()+B.getWeight()<=R.getMAX_WEIGHT();	  		
+  actions
+ 	B.setPosition("ROB");
+ 	R.setWeight(R.getWeight() + B.getWeight());
+ 	R.print();
+ 	B.print();
+ 	modified(R);
+ 	modified(B);
+}
+
+rule robot_moves_PIC_area_book{  
+  declarations
+    inferencia.practica.Robot R;
+    inferencia.practica.Book B;    
+  preconditions
+  	R.getBattery()>1;
+    R.isLoaded(B);
+    R.getPosition().equals("PIC");
+  actions
+ 	R.setPosition(B.getArea());
+ 	R.decrementBattery();
+ 	R.print();
+    modified(R);
+}
+
+rule robot_unloads_book_book_shelf {  
+  declarations
+	inferencia.practica.Robot R;
+	inferencia.practica.Book_shelf BS;
+    inferencia.practica.Book B;
+  preconditions
+	R.getBattery()>1;
+	R.isLoaded(B); 
+	BS.belongingBook(B);
+	R.getPosition().equals(BS.getArea());
+  actions
+  	//BS.books_included.add(B);
+  	B.setPosition(BS.getArea());
+  	R.decrementWeight(B);
+  	R.print();
+ 	B.print();
+  	modified(R);
+}
+
+rule robot_moves_area_book {
+  declarations
+ 	inferencia.practica.Robot R;
+ 	inferencia.practica.Book B; 
+  preconditions 
+	R.getBattery()>1;
+   	R.isLoaded(B);
+    !R.getPosition().equals("PIC");
+  actions
+	R.setPosition(B.getArea());
+ 	R.decrementBattery();
+ 	R.print();
+ 	B.print();
+    modified(R);  
+}
+
+rule robot_return_PIC_no_books_left {  
+  declarations
+	inferencia.practica.Robot R;
+    inferencia.practica.Book B;	
+  preconditions
+  	R.getWeight() == 0;
+	R.getBattery()>=1;
+	!R.isLoaded(B);
+	!R.getPosition().equals("PIC");
+  actions
+  	R.setPosition("PIC");
+  	R.decrementBattery();
+  	R.print();
+  	modified(R);
+}
+
+rule robot_return_PIC_no_battery_left {  
+  declarations
+	inferencia.practica.Robot R;
+    inferencia.practica.Book B;	
+  preconditions
+	R.getBattery()==1;
+  actions
+  	R.setPosition("PIC");
+  	R.decrementBattery();
+  	R.print();
+ 	B.print();
+  	modified(R);
+}
+
+
+
+
